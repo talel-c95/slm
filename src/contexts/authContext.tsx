@@ -206,7 +206,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   // Delete user account
-  const deleteAccount = async () => {
+  const deleteAccount = async (): Promise<void> => {
     setLoading(true);
     setError(null);
     
@@ -217,19 +217,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw new Error('Authentication required');
       }
       
+      console.log('Sending delete account request to:', `${API_URL}/users/me`);
+      
       const response = await fetch(`${API_URL}/users/me`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${storedToken}`
+          'Authorization': `Bearer ${storedToken}`,
+          'Content-Type': 'application/json'
         }
       });
       
+      console.log('Delete account response status:', response.status);
+      
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Delete account error response:', errorData);
         throw new Error(errorData.message || 'Failed to delete account');
       }
       
       // Clear user data after successful deletion
+      console.log('Account deleted successfully, clearing session data');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
@@ -238,6 +245,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.error('Account deletion error:', error);
       setError(error instanceof Error ? error.message : 'Failed to delete account');
+      throw error;
     } finally {
       setLoading(false);
     }

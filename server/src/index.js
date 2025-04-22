@@ -16,8 +16,22 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// Configure CORS with explicit options
+const corsOptions = {
+  origin: ['http://localhost:3000', 'http://localhost:4000'], // Add your frontend URLs
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -25,9 +39,23 @@ app.use('/api/users', userRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/patients', patientRoutes);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  res.status(500).json({
+    message: 'Server error',
+    error: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : err.message
+  });
+});
+
 // Test route
 app.get('/', (req, res) => {
   res.send('Doctor Connect API is running');
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
 });
 
 // Database connection and server start
