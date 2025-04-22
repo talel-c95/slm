@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Clock, FileText, Activity, Pill as Pills, ChevronRight, Bell, User, Heart, Clipboard } from 'lucide-react';
+import { Calendar, Clock, FileText, Activity, ChevronRight, Bell, User, Heart, Clipboard, Globe, ChevronDown } from 'lucide-react';
 import PageContainer from "./components/pagecontainer";
-import Profile from './Profile/Profile';
 import { useRouter } from 'next/navigation';
 
+// Mock data
 const upcomingAppointments = [
   {
     id: 1,
@@ -63,63 +63,143 @@ const recentTests = [
   }
 ];
 
-export default function PatientProfile() {
+// Health metrics
+const healthMetrics = [
+  { name: 'Blood Pressure', value: '120/80 mmHg', status: 'normal' },
+  { name: 'Heart Rate', value: '72 bpm', status: 'normal' },
+  { name: 'Blood Glucose', value: '95 mg/dL', status: 'normal' },
+  { name: 'Cholesterol', value: '180 mg/dL', status: 'warning' }
+];
+
+// Available languages
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'fr', name: 'Français' },
+  { code: 'es', name: 'Español' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'zh', name: '中文' }
+];
+
+export default function PatientDashboard() {
   const router = useRouter();
   const [profileData, setProfileData] = useState({
     firstName: 'Sarah',
     lastName: 'Anderson',
     height: "5'6\"",
     weight: '130 lbs',
-    profilePhoto: '',
+    profilePhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
   });
-  const [navbarName, setNavbarName] = useState(`${profileData.firstName} ${profileData.lastName}`);
-
-  const updateProfile = (data: { firstName?: string; lastName?: string; height?: string; weight?: string; profilePhoto?: string }) => {
-    setProfileData(prev => ({
-      ...prev,
-      ...data
-    }));
-  };
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/dashboard/patient/appointments');//example besh nbadlou mbaaed 
-      if (!response.ok) {
-        throw new Error('thama eerroorrr');
-      }
-      const data = await response.json();
-      // mezlt khedma
-    } catch (error) {
-      console.error('Fetch error:', error);
-      // mezlt khedma 
-    }
-  };
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const [showLanguages, setShowLanguages] = useState(false);
 
   return (
-    <PageContainer title="Patient Profile">
-      {/* Main Content */}
+    <PageContainer title="Patient Dashboard">
+      {/* Language Selector */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="relative">
+          <button 
+            className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-sm text-sm" 
+            onClick={() => setShowLanguages(!showLanguages)}
+          >
+            <Globe className="h-4 w-4 text-blue-600" />
+            {languages.find(lang => lang.code === currentLanguage)?.name}
+            <ChevronDown className="h-4 w-4" />
+          </button>
+          
+          {showLanguages && (
+            <div className="absolute top-full right-0 mt-1 bg-white rounded-lg shadow-lg py-2 w-40 z-50">
+              {languages.map(lang => (
+                <button
+                  key={lang.code}
+                  className="w-full text-left px-4 py-2 hover:bg-gray-50 text-sm"
+                  onClick={() => {
+                    setCurrentLanguage(lang.code);
+                    setShowLanguages(false);
+                  }}
+                >
+                  {lang.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Patient Summary Card */}
+      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-xl p-6 mb-8 text-white">
+        <div className="flex items-center">
+          <div className="h-20 w-20 rounded-full border-4 border-white overflow-hidden">
+            <img
+              src={profileData.profilePhoto}
+              alt="Profile"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="ml-6">
+            <h2 className="text-2xl font-bold">{profileData.firstName} {profileData.lastName}</h2>
+            <div className="flex gap-8 mt-1 text-blue-100">
+              <div>
+                <span className="text-xs opacity-80">Height</span>
+                <p>{profileData.height}</p>
+              </div>
+              <div>
+                <span className="text-xs opacity-80">Weight</span>
+                <p>{profileData.weight}</p>
+              </div>
+              <div>
+                <span className="text-xs opacity-80">Blood Type</span>
+                <p>A+</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column */}
         <div className="lg:col-span-2 space-y-8">
+          {/* Health Metrics */}
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4">Health Metrics</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {healthMetrics.map((metric) => (
+                <div key={metric.name} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between">
+                    <p className="text-gray-500 text-sm">{metric.name}</p>
+                    <span className={`h-2 w-2 rounded-full ${
+                      metric.status === 'normal' ? 'bg-green-500' : 
+                      metric.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}></span>
+                  </div>
+                  <p className="text-xl font-medium mt-1">{metric.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Upcoming Appointments */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-blue-600 mr-2" />
+                <h2 className="text-xl font-semibold">Upcoming Appointments</h2>
+              </div>
               <button 
-                onClick={() => router.push('/appointments')} 
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                onClick={() => router.push('/dashboard/patient/appointments')} 
+                className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center"
               >
                 View All
+                <ChevronRight className="h-4 w-4 ml-1" />
               </button>
             </div>
             <div className="space-y-4">
               {upcomingAppointments.map((appointment) => (
-                <div key={appointment.id} className="flex items-center p-4 border rounded-lg hover:bg-gray-50">
+                <div key={appointment.id} className="flex items-center p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                   {appointment.image ? (
                     <img
                       src={appointment.image}
                       alt={appointment.doctor}
-                      className="h-12 w-12 rounded-full object-cover"
+                      className="h-14 w-14 rounded-full object-cover border-2 border-gray-100"
                     />
                   ) : null}
                   <div className="ml-4 flex-1">
@@ -130,18 +210,26 @@ export default function PatientProfile() {
                     <p className="font-medium">{appointment.date}</p>
                     <p className="text-sm text-gray-500">{appointment.time}</p>
                   </div>
-                  <ChevronRight className="h-5 w-5 text-gray-400 ml-4" />
+                  <button 
+                    className="ml-4 bg-blue-100 text-blue-600 p-2 rounded-full hover:bg-blue-200 transition-colors"
+                    aria-label="View appointment details"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Recent Test Results */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-6">Recent Test Results</h2>
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center mb-6">
+              <Activity className="h-5 w-5 text-blue-600 mr-2" />
+              <h2 className="text-xl font-semibold">Recent Test Results</h2>
+            </div>
             <div className="space-y-4">
               {recentTests.map((test) => (
-                <div key={test.name} className="flex items-center justify-between p-4 border rounded-lg">
+                <div key={test.name} className="flex items-center justify-between p-4 border rounded-lg hover:shadow-sm transition-shadow">
                   <div>
                     <h3 className="font-medium">{test.name}</h3>
                     <p className="text-sm text-gray-500">Date: {test.date}</p>
@@ -162,18 +250,21 @@ export default function PatientProfile() {
         {/* Right Column */}
         <div className="space-y-8">
           {/* Current Medications */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold">Current Medications</h2>
-              <Pills className="h-5 w-5 text-blue-600" />
+              <div className="flex items-center">
+                <Heart className="h-5 w-5 text-blue-600 mr-2" />
+                <h2 className="text-xl font-semibold">Current Medications</h2>
+              </div>
             </div>
             <div className="space-y-4">
               {medications.map((medication) => (
-                <div key={medication.name} className="p-4 border rounded-lg">
+                <div key={medication.name} className="p-4 border rounded-lg hover:shadow-sm transition-shadow">
                   <h3 className="font-medium">{medication.name}</h3>
                   <p className="text-sm text-gray-500">Dosage: {medication.dosage}</p>
                   <p className="text-sm text-gray-500">Frequency: {medication.frequency}</p>
-                  <div className="mt-2 text-xs text-gray-400">
+                  <div className="mt-2 text-xs text-gray-400 flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
                     {medication.startDate} - {medication.endDate}
                   </div>
                 </div>
@@ -182,39 +273,50 @@ export default function PatientProfile() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-xl font-semibold mb-6">Quick Actions</h2>
             <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-gray-50">
+              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-blue-50 transition-colors">
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 text-blue-600" />
                   <span className="ml-3">Schedule Appointment</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
-              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-gray-50">
+              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-blue-50 transition-colors">
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 text-blue-600" />
                   <span className="ml-3">Request Medical Records</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
-              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-gray-50">
+              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-blue-50 transition-colors">
                 <div className="flex items-center">
                   <Clipboard className="h-5 w-5 text-blue-600" />
                   <span className="ml-3">View Lab Results</span>
                 </div>
                 <ChevronRight className="h-5 w-5 text-gray-400" />
               </button>
+              <button className="w-full flex items-center justify-between p-3 text-left border rounded-lg hover:bg-blue-50 transition-colors">
+                <div className="flex items-center">
+                  <Activity className="h-5 w-5 text-blue-600" />
+                  <span className="ml-3">Track Health Metrics</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-gray-400" />
+              </button>
+            </div>
+          </div>
+
+          {/* Health Tips */}
+          <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl shadow-md p-6 border border-blue-100">
+            <h2 className="text-xl font-semibold mb-4">Health Tip</h2>
+            <p className="text-gray-600">Stay hydrated! Aim to drink at least 8 glasses of water daily to support your overall health and wellness.</p>
+            <div className="mt-4 text-right">
+              <button className="text-blue-600 text-sm font-medium">Read More Tips</button>
             </div>
           </div>
         </div>
       </div>
-      <Profile 
-        initialData={profileData}
-        updateProfile={updateProfile}
-        updateNavbarName={setNavbarName}
-      />
     </PageContainer>
   );
 }
