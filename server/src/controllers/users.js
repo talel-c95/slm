@@ -151,22 +151,37 @@ export const changePassword = async (req, res) => {
   }
 };
 
-// Delete user (admin only)
+// Delete user (admin or self-deletion)
 export const deleteUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    let userId;
     
-    // Check if user exists
-    const user = await User.findByPk(id);
+    // Check if this is a self-deletion or admin deleting another user
+    if (req.params.id) {
+      // Admin deleting a user
+      userId = req.params.id;
+      
+      // Check if user to delete exists
+      const user = await User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+    } else {
+      // Self-deletion - use the authenticated user's ID
+      userId = req.user.id;
+    }
+    
+    // Get the user record
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     
     // Delete associated role-specific record
     if (user.role === 'doctor') {
-      await Doctor.destroy({ where: { userId: id } });
+      await Doctor.destroy({ where: { userId } });
     } else if (user.role === 'patient') {
-      await Patient.destroy({ where: { userId: id } });
+      await Patient.destroy({ where: { userId } });
     }
     
     // Delete user

@@ -3,112 +3,145 @@
 import { useState } from 'react';
 import { FiSearch, FiSend, FiPaperclip, FiImage, FiFile, FiUser, FiMoreVertical } from 'react-icons/fi';
 
-// Dummy conversation data
-const conversations = [
-  {
-    id: 1,
-    doctor: {
-      id: 101,
-      name: 'Dr. Sarah Johnson',
-      specialty: 'Cardiology',
-      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
-      isOnline: true
-    },
-    lastMessage: {
-      text: 'Please let me know if you have any questions about your prescription.',
-      time: '10:30 AM',
-      isRead: true,
-      sender: 'doctor'
-    },
-    unreadCount: 0
-  },
-  {
-    id: 2,
-    doctor: {
-      id: 102,
-      name: 'Dr. Ahmed Mansour',
-      specialty: 'Dermatology',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      isOnline: false
-    },
-    lastMessage: {
-      text: 'Your test results look good. We should discuss them at your next appointment.',
-      time: 'Yesterday',
-      isRead: false,
-      sender: 'doctor'
-    },
-    unreadCount: 2
-  },
-  {
-    id: 3,
-    doctor: {
-      id: 103,
-      name: 'Dr. Fatima Zouari',
-      specialty: 'Pulmonology',
-      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
-      isOnline: false
-    },
-    lastMessage: {
-      text: 'I'll be available for a video consultation tomorrow at 3 PM.',
-      time: 'Yesterday',
-      isRead: true,
-      sender: 'doctor'
-    },
-    unreadCount: 0
-  }
-];
+type MessageSender = 'patient' | 'doctor';
 
-// Dummy messages for selected conversation
-const dummyMessages = [
-  {
-    id: 1,
-    text: 'Hello Dr. Johnson, I've been experiencing some chest pain after taking the new medication.',
-    time: '9:45 AM',
-    sender: 'patient',
-    isRead: true
-  },
-  {
-    id: 2,
-    text: 'When did you start experiencing this pain? Is it constant or does it come and go?',
-    time: '10:00 AM',
-    sender: 'doctor',
-    isRead: true
-  },
-  {
-    id: 3,
-    text: 'It started yesterday evening. It comes and goes, mainly after meals.',
-    time: '10:15 AM',
-    sender: 'patient',
-    isRead: true
-  },
-  {
-    id: 4,
-    text: 'I see. This could be a side effect of the medication. Please reduce the dosage to once a day and monitor if the symptoms improve.',
-    time: '10:20 AM',
-    sender: 'doctor',
-    isRead: true
-  },
-  {
-    id: 5,
-    text: 'Thank you, I'll try that. Should I still come in for my appointment next week?',
-    time: '10:25 AM',
-    sender: 'patient',
-    isRead: true
-  },
-  {
-    id: 6,
-    text: 'Please let me know if you have any questions about your prescription.',
-    time: '10:30 AM',
-    sender: 'doctor',
-    isRead: true
-  }
-];
+interface Doctor {
+  id: number;
+  name: string;
+  specialty: string;
+  avatar: string;
+  isOnline: boolean;
+}
+
+interface MessageItem {
+  id: number;
+  text: string;
+  time: string;
+  sender: MessageSender;
+  isRead: boolean;
+}
+
+interface LastMessage {
+  text: string;
+  time: string;
+  isRead: boolean;
+  sender: MessageSender;
+}
+
+interface Conversation {
+  id: number;
+  doctor: Doctor;
+  lastMessage: LastMessage;
+  unreadCount: number;
+}
 
 export default function Messages() {
-  const [selectedConversation, setSelectedConversation] = useState(conversations[0]);
+  // Dummy conversation data
+  const conversationsData: Conversation[] = [
+    {
+      id: 1,
+      doctor: {
+        id: 101,
+        name: 'Dr. Sarah Johnson',
+        specialty: 'Cardiology',
+        avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+        isOnline: true
+      },
+      lastMessage: {
+        text: 'Please let me know if you have any questions about your prescription.',
+        time: '10:30 AM',
+        isRead: true,
+        sender: 'doctor'
+      },
+      unreadCount: 0
+    },
+    {
+      id: 2,
+      doctor: {
+        id: 102,
+        name: 'Dr. Ahmed Mansour',
+        specialty: 'Dermatology',
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        isOnline: false
+      },
+      lastMessage: {
+        text: 'Your test results look good. We should discuss them at your next appointment.',
+        time: 'Yesterday',
+        isRead: false,
+        sender: 'doctor'
+      },
+      unreadCount: 2
+    },
+    {
+      id: 3,
+      doctor: {
+        id: 103,
+        name: 'Dr. Fatima Zouari',
+        specialty: 'Pulmonology',
+        avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+        isOnline: false
+      },
+      lastMessage: {
+        text: 'Ill be available for a video consultation tomorrow at 3 PM.',
+        time: 'Yesterday',
+        isRead: true,
+        sender: 'doctor'
+      },
+      unreadCount: 0
+    }
+  ];
+
+  // Dummy messages for selected conversation
+  const dummyMessages: MessageItem[] = [
+    {
+      id: 1,
+      text: 'Hello Dr. Johnson, Ive been experiencing some chest pain after taking the new medication.',
+      time: '9:45 AM',
+      sender: 'patient',
+      isRead: true
+    },
+    {
+      id: 2,
+      text: 'When did you start experiencing this pain? Is it constant or does it come and go?',
+      time: '10:00 AM',
+      sender: 'doctor',
+      isRead: true
+    },
+    {
+      id: 3,
+      text: 'It started yesterday evening. It comes and goes, mainly after meals.',
+      time: '10:15 AM',
+      sender: 'patient',
+      isRead: true
+    },
+    {
+      id: 4,
+      text: 'I see. This could be a side effect of the medication. Please reduce the dosage to once a day and monitor if the symptoms improve.',
+      time: '10:20 AM',
+      sender: 'doctor',
+      isRead: true
+    },
+    {
+      id: 5,
+      text: 'Thank you, Ill try that. Should I still come in for my appointment next week?',
+      time: '10:25 AM',
+      sender: 'patient',
+      isRead: true
+    },
+    {
+      id: 6,
+      text: 'Please let me know if you have any questions about your prescription.',
+      time: '10:30 AM',
+      sender: 'doctor',
+      isRead: true
+    }
+  ];
+
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(conversationsData[0]);
   const [messageText, setMessageText] = useState('');
-  const [messages, setMessages] = useState(dummyMessages);
+  const [messages, setMessages] = useState<MessageItem[]>(dummyMessages);
   const [searchTerm, setSearchTerm] = useState('');
+  const [conversations] = useState<Conversation[]>(conversationsData);
 
   const filteredConversations = conversations.filter(conv => 
     conv.doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -118,7 +151,7 @@ export default function Messages() {
   const handleSendMessage = () => {
     if (messageText.trim() === '') return;
     
-    const newMessage = {
+    const newMessage: MessageItem = {
       id: messages.length + 1,
       text: messageText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

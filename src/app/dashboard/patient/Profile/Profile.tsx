@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { User, Activity } from 'lucide-react';
+import { useState } from 'react';
+import { User } from 'lucide-react';
+import DeleteAccount from './pages/DeleteAccount';
 
 interface ProfileProps {
   updateProfile: (data: {
@@ -154,6 +155,9 @@ export default function Profile({ updateProfile, initialData, updateNavbarName }
           </div>
         </div>
       </div>
+
+      {/* Delete Account Section */}
+      <DeleteAccount />
     </div>
   );
 }

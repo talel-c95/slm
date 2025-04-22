@@ -23,6 +23,7 @@ interface AuthContextType {
   register: (userData: RegisterData) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 interface AuthProviderProps {
@@ -204,6 +205,44 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setError(null);
   };
 
+  // Delete user account
+  const deleteAccount = async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const storedToken = localStorage.getItem('token');
+      
+      if (!storedToken) {
+        throw new Error('Authentication required');
+      }
+      
+      const response = await fetch(`${API_URL}/users/me`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${storedToken}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete account');
+      }
+      
+      // Clear user data after successful deletion
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      setToken(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Account deletion error:', error);
+      setError(error instanceof Error ? error.message : 'Failed to delete account');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -215,7 +254,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         register,
         logout,
-        clearError
+        clearError,
+        deleteAccount
       }}
     >
       {children}

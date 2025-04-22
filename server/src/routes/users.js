@@ -14,9 +14,12 @@ const router = express.Router();
 router.get('/', protect, authorize('admin'), getAllUsers);
 router.delete('/:id', protect, authorize('admin'), deleteUser);
 
-// Protected routes (user's own profile or admin)
-router.get('/:id', protect, getUserById);
-router.put('/:id', protect, updateUser);
-router.put('/:id/password', protect, changePassword);
+// User routes
+router.get('/me', protect, getUserById);
+router.put('/me', protect, updateUser);
+router.put('/me/password', protect, changePassword);
+
+// Allow users to delete their own account
+router.delete('/me', protect, deleteUser);
 
 export default router; 
